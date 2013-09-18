@@ -1,15 +1,29 @@
 require "rubygems"
-require "amqp"
+
+# Function which loads eventmachine and amqp gem
+def loadGems
+	begin
+ 		require "eventmachine" unless defined?(EventMachine)
+	rescue LoadError => detail
+		raise Puppet::Error, "Could not load EventMachine gem: Please ensure the EventMachine gem is installed before using this provider."
+	end
+
+	begin
+ 		require "amqp" unless defined?(AMQP)
+	rescue LoadError => detail
+		raise Puppet::Error, "Could not load AMQP gem: Please ensure the AMQP gem is installed before using this provider."
+	end
+end
 
 Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 
 	commands :rabbitmqctl => 'rabbitmqctl'
-	defaultfor :feature=> :posix
+
+	defaultfor :feature => :gem_amqp
 
 
 	def initialize(*args)
 		super
-
 
 		# Get all exchanges for current VHOST, if we haven't done so already
 		# Can't do this in instances as it is only done once and won't grab all
@@ -39,6 +53,9 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 		exchangeName = value[0]
 		vhost = value[1]
 
+		# Try to load required gems first
+		loadGems
+
 		info("Creating rabbitmq exchange #{exchangeName}")
 		EventMachine.run do
 			AMQP.connect(
@@ -60,6 +77,9 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 		value = resource[:name].split(/@/)
 		exchangeName = value[0]
 		vhost = value[1]
+
+		# Try to load required gems first
+		loadGems
 
 		info("Destroying rabbitmq exchange #{exchangeName}")
 		EventMachine.run do
@@ -93,6 +113,9 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 		value = resource[:name].split(/@/)
 		exchangeName = value[0]
 		vhost = value[1]
+
+		# Try to load required gem first
+		loadGems
 
 		info("Changing rabbitmq exchange type for #{exchangeName}")
 		EventMachine.run do

@@ -17,6 +17,6 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:default) do
   end
 
   def default_fail
-    fail('This is just the default provider for rabbitmq_exchange, all it does is fail') 
+    fail('No supported providers were found for you system.') 
   end
 end
