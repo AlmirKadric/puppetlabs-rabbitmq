@@ -18,13 +18,10 @@ end
 Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 
 	commands :rabbitmqctl => 'rabbitmqctl'
-
 	defaultfor :feature => :gem_amqp
 
 
-	def initialize(*args)
-		super
-
+	def GetExchanges (resource)
 		# Get all exchanges for current VHOST, if we haven't done so already
 		# Can't do this in instances as it is only done once and won't grab all
 		# VHOSTS, this way is more efficient as we don't end up listing all VHOSTS
@@ -100,6 +97,7 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:amqp) do
 	end
 
 	def exists?
+		GetExchanges(@resource)
 		@exchanges.has_key?(@resource[:name])
 	end
 
